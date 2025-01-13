@@ -27,8 +27,21 @@ export default function IndexPage() {
   };
   const onClose = () => {
     setIsOpen(false)
+    setAmount('');
+    setIsKeyboardVisible(false)
   };
   const [summaryType, setSummaryType] = useState<any>('paymentMethod'); // 汇总类型：category 或 paymentMethod
+
+  // 检测是否为移动设备
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isMobileDevice = () => {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      };
+      setIsMobile(isMobileDevice());
+    }
+  }, []);
 
   // 获取当前日期
   const getCurrentDate = () => {
@@ -74,6 +87,11 @@ export default function IndexPage() {
     try {
       e.preventDefault();
       const values = Object.fromEntries(new FormData(e.currentTarget));
+      // 金额验证
+      if (!amount || isNaN(parseFloat(amount))) {
+        alert('请输入有效的金额');
+        return;
+      }
       const response = await fetch(`https://account-book.post.jieyuu.us.kg/api/expenses`, {
         method: 'POST',
         headers: {
@@ -95,6 +113,7 @@ export default function IndexPage() {
       // 重新获取数据
       fetchChangExpenses();
       fetchJieExpenses();
+      setAmount(''); // 清空金额输入
 
     } catch (error) {
       console.error('Error adding expense:', error);
@@ -199,11 +218,55 @@ export default function IndexPage() {
     return changExpenses.slice(startChang, endChang);
   }, [pageChang, changExpenses]);
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false); // 控制键盘显示与隐藏
+
+  // 自定义数字键盘组件
+  const NumberKeyboard = ({ value, onChange, onComplete }: { value: string; onChange: (value: string) => void; onComplete: () => void }) => {
+    const handleKeyPress = (key: string) => {
+      let newValue = value;
+
+      if (key === 'backspace') {
+        newValue = newValue.slice(0, -1); // 删除最后一个字符
+      } else if (key === '-') {
+        if (!newValue.includes('-')) {
+          newValue = key + newValue; // 只能在开头添加负号
+        }
+      } else if (key === '.') {
+        if (!newValue.includes('.')) {
+          newValue += key; // 只能添加一个小数点
+        }
+      } else {
+        newValue += key; // 添加数字
+      }
+
+      onChange(newValue);
+    };
+
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '10px' }}>
+        {['7', '8', '9', '4', '5', '6', '1', '2', '3', '-', '0', '.'].map((key) => (
+          <Button key={key} onPress={() => handleKeyPress(key)}>
+            {key}
+          </Button>
+        ))}
+        {/* 删除和完成按钮 */}
+        <Button onPress={onComplete} color="primary" style={{ gridColumn: '1 / 3' }}>
+          完成
+        </Button>
+        <Button color="danger" onPress={() => handleKeyPress('backspace')} style={{ gridColumn: '3 / 4' }}>
+          ⌫
+        </Button>
+        {/* <div style={{ gridColumn: '2 / 3' }} /> */}
+      </div>
+    );
+  };
+  const [amount, setAmount] = useState(''); // 金额输入
+
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
 
       {/* 弹窗表单 */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={() => { onClose }}>
         <Form onSubmit={addExpense} validationBehavior="native">
           <ModalContent>
             {
@@ -217,22 +280,40 @@ export default function IndexPage() {
                   <Select name="paymentMethod" isRequired defaultSelectedKeys={["花呗"]} label="请选择支付方式" className="max-w-[284px]" items={paymentMethods}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
-                  <Input
-                    name="amount"
-                    isRequired
-                    type="text"
-                    label="请输入金额"
-                    className="max-w-[284px]"
-                    pattern="^-?\d*\.?\d*$"
-                    onInput={(e) => {
-                      const input = e.target as HTMLInputElement;
-                      const value = input.value;
-                      // 只允许数字、负号和小数点
-                      if (!/^-?\d*\.?\d*$/.test(value)) {
-                        input.value = value.slice(0, -1); // 删除非法字符
-                      }
-                    }}
-                  />
+                  {isMobile ? (
+                    <>
+                      <Input
+                        name="amount"
+                        isRequired
+                        type="text"
+                        label="请输入金额"
+                        className="max-w-[284px]"
+                        value={amount}
+                        readOnly
+                        onFocus={(e) => {
+                          e.target.blur(); // 阻止原生键盘弹出
+                          setIsKeyboardVisible(true); // 显示自定义键盘
+                        }}
+                      />
+                      {isKeyboardVisible && (
+                        <NumberKeyboard
+                          value={amount}
+                          onChange={setAmount}
+                          onComplete={() => setIsKeyboardVisible(false)} // 点击“完成”按钮后隐藏键盘
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <Input
+                      name="amount"
+                      isRequired
+                      type="number" // 非移动设备使用原生输入
+                      label="请输入金额"
+                      className="max-w-[284px]"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)} // 直接更新金额
+                    />
+                  )}
                   <Select name="user" isRequired defaultSelectedKeys={["畅"]} label="请选择用户" className="max-w-[284px]" items={[{ label: '畅', key: '畅' }, { label: '杰', key: '杰' }]}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
