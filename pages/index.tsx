@@ -266,7 +266,7 @@ export default function IndexPage() {
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
 
       {/* 弹窗表单 */}
-      <Modal isOpen={isOpen} onClose={() => { onClose }}>
+      <Modal isOpen={isOpen} onClose={onClose}>
         <Form onSubmit={addExpense} validationBehavior="native">
           <ModalContent>
             {
