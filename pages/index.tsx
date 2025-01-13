@@ -17,9 +17,9 @@ export default function IndexPage() {
   // 状态管理
   const [changExpenses, setChangExpenses] = useState<Array<{ id: number, amount: number, date: string, category: string, paymentMethod: string, user: string }>>([]); // 畅的花销
   const [jieExpenses, setJieExpenses] = useState<Array<{ id: number, amount: number, date: string, category: string, paymentMethod: string, user: string }>>([]); // 杰的花销
-  const [isOpen, setIsOpen] = useState(true)
-  const [pageChang, setPageChang] = useState(1);
-  const [pageJie, setPageJie] = useState(1);
+  const [isOpen, setIsOpen] = useState(true) //弹窗状态
+  const [pageChang, setPageChang] = useState(1); // 畅的花销明细翻页
+  const [pageJie, setPageJie] = useState(1); // 杰的花销明细翻页
   // 每页显示数据条数
   const rowsPerPage = 5;
   const onOpen = () => {
@@ -124,35 +124,32 @@ export default function IndexPage() {
     interface SummaryData {
       [key: string]: any; // 索引签名，表示可以接受任意字符串作为属性名
     }
+    const summaryDataChangBodyCategory: SummaryData = {}
+    const summaryDataChangBodyPaymentMethod: SummaryData = {}
+    const summaryDataJieBodyCategory: SummaryData = {}
+    const summaryDataJieBodyPaymentMethod: SummaryData = {}
 
     const summaryDataChangHeader: SummaryData = {
       key: 'chang',
       users: '畅',
       totalExpenses: Number(totalChang.toFixed(2)),
-      remainingAmount: 1500 - Number(totalChang.toFixed(2))
+      remainingAmount: Number(1500 - totalChang.toFixed(2))
     };
     const summaryDataJieHeader: SummaryData = {
       key: 'jie',
       users: '杰  ',
       totalExpenses: Number(totalJie.toFixed(2)),
-      remainingAmount: 1000 - Number(totalJie.toFixed(2))
+      remainingAmount: Number(1000 - totalJie.toFixed(2))
     };
-    const summaryDataChangBodyCategory: SummaryData = {}
-    const summaryDataChangBodyPaymentMethod: SummaryData = {}
     categories.forEach(e => {
       summaryDataChangBodyCategory[e.key] = getTotalByCategory(changExpenses, e.key)
-    });
-    paymentMethods.forEach(e => {
-      summaryDataChangBodyPaymentMethod[e.key] = getTotalByPaymentMethod(changExpenses, e.key)
-    });
-    const summaryDataJieBodyCategory: SummaryData = {}
-    const summaryDataJieBodyPaymentMethod: SummaryData = {}
-    categories.forEach(e => {
       summaryDataJieBodyCategory[e.key] = getTotalByCategory(jieExpenses, e.key)
     });
     paymentMethods.forEach(e => {
+      summaryDataChangBodyPaymentMethod[e.key] = getTotalByPaymentMethod(changExpenses, e.key)
       summaryDataJieBodyPaymentMethod[e.key] = getTotalByPaymentMethod(jieExpenses, e.key)
     });
+
     const summaryDataChang =
       summaryType === 'category'
         ? { ...summaryDataChangHeader, ...summaryDataChangBodyCategory }
@@ -205,17 +202,11 @@ export default function IndexPage() {
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
 
-
-      {/* <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-        <Button color="primary" onPress={onOpen}>添加数据</Button>
-      </div> */}
-
       {/* 弹窗表单 */}
-      <Modal isOpen={isOpen} hideCloseButton={true}>
+      <Modal isOpen={isOpen} onClose={onClose}>
         <Form onSubmit={addExpense} validationBehavior="native">
           <ModalContent>
             {
-              // (onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">添加花销</ModalHeader>
                 <ModalBody>
@@ -226,7 +217,22 @@ export default function IndexPage() {
                   <Select name="paymentMethod" isRequired defaultSelectedKeys={["花呗"]} label="请选择支付方式" className="max-w-[284px]" items={paymentMethods}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
-                  <Input name="amount" isRequired type="number" label="请输入金额" className="max-w-[284px]" />
+                  <Input
+                    name="amount"
+                    isRequired
+                    type="text"
+                    label="请输入金额"
+                    className="max-w-[284px]"
+                    pattern="^-?\d*\.?\d*$"
+                    onInput={(e) => {
+                      const input = e.target as HTMLInputElement;
+                      const value = input.value;
+                      // 只允许数字、负号和小数点
+                      if (!/^-?\d*\.?\d*$/.test(value)) {
+                        input.value = value.slice(0, -1); // 删除非法字符
+                      }
+                    }}
+                  />
                   <Select name="user" isRequired defaultSelectedKeys={["畅"]} label="请选择用户" className="max-w-[284px]" items={[{ label: '畅', key: '畅' }, { label: '杰', key: '杰' }]}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
@@ -240,7 +246,6 @@ export default function IndexPage() {
                   </Button>
                 </ModalFooter>
               </>
-              // )
             }
           </ModalContent>
         </Form>
@@ -270,7 +275,7 @@ export default function IndexPage() {
         </Table>
       </div>
 
-      {/* 中部：畅和杰的花销明细 */}
+      {/* 畅和杰的花销明细 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Table bottomContent={
@@ -326,11 +331,7 @@ export default function IndexPage() {
             </TableBody>
           </Table>
         </div>
-
       </div>
-
-
-
     </div>
   );
 }
