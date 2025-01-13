@@ -101,7 +101,7 @@ export default function IndexPage() {
           date: values.date,
           category: values.category,
           paymentMethod: values.paymentMethod,
-          amount: values.amount,
+          amount: Number(values.amount),
           user: values.user,
         }),
       });
@@ -137,8 +137,8 @@ export default function IndexPage() {
   // 根据汇总类型生成汇总数据
   const getSummaryData = () => {
     // 畅和杰的总花销
-    const totalChang = changExpenses.reduce((sum: any, e: { amount: any; }) => sum + e.amount, 0);
-    const totalJie = jieExpenses.reduce((sum: any, e: { amount: any; }) => sum + e.amount, 0);
+    const totalChang = Number(changExpenses.reduce((sum: any, e: { amount: any; }) => sum + e.amount, 0));
+    const totalJie = Number(jieExpenses.reduce((sum: any, e: { amount: any; }) => sum + e.amount, 0));
 
     interface SummaryData {
       [key: string]: any; // 索引签名，表示可以接受任意字符串作为属性名
@@ -151,14 +151,14 @@ export default function IndexPage() {
     const summaryDataChangHeader: SummaryData = {
       key: 'chang',
       users: '畅',
-      totalExpenses: Number(totalChang.toFixed(2)),
-      remainingAmount: Number(1500 - totalChang.toFixed(2))
+      totalExpenses: Math.round(totalChang * 100) / 100,
+      remainingAmount: Math.round((1500 - totalChang) * 100) / 100
     };
     const summaryDataJieHeader: SummaryData = {
       key: 'jie',
       users: '杰  ',
-      totalExpenses: Number(totalJie.toFixed(2)),
-      remainingAmount: Number(1000 - totalJie.toFixed(2))
+      totalExpenses: Math.round(totalJie * 100) / 100,
+      remainingAmount: Math.round((1500 - totalJie) * 100) / 100
     };
     categories.forEach(e => {
       summaryDataChangBodyCategory[e.key] = getTotalByCategory(changExpenses, e.key)
