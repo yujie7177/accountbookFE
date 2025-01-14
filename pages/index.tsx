@@ -273,16 +273,17 @@ export default function IndexPage() {
               <>
                 <ModalHeader className="flex flex-col gap-1">添加花销</ModalHeader>
                 <ModalBody>
-                  <DatePicker name="date" isRequired defaultValue={parseDate(getCurrentDate())} label="请选择消费日期" />
-                  <Select name="category" isRequired defaultSelectedKeys={["衣服"]} label="请选择消费品类" items={categories}>
+                  <DatePicker className="max-w-[284px]" name="date" isRequired defaultValue={parseDate(getCurrentDate())} label="请选择消费日期" />
+                  <Select className="max-w-[284px]" name="category" isRequired defaultSelectedKeys={["衣服"]} label="请选择消费品类" items={categories}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
-                  <Select name="paymentMethod" isRequired defaultSelectedKeys={["花呗"]} label="请选择支付方式" items={paymentMethods}>
+                  <Select className="max-w-[284px]" name="paymentMethod" isRequired defaultSelectedKeys={["花呗"]} label="请选择支付方式" items={paymentMethods}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
                   {isMobile ? (
                     <>
                       <Input
+                        className="max-w-[284px]"
                         name="amount"
                         isRequired
                         type="text"
@@ -304,6 +305,7 @@ export default function IndexPage() {
                     </>
                   ) : (
                     <Input
+                      className="max-w-[284px]"
                       name="amount"
                       isRequired
                       type="number" // 非移动设备使用原生输入
@@ -312,7 +314,7 @@ export default function IndexPage() {
                       onChange={(e) => setAmount(e.target.value)} // 直接更新金额
                     />
                   )}
-                  <Select name="user" isRequired defaultSelectedKeys={["畅"]} label="请选择用户" items={[{ label: '畅', key: '畅' }, { label: '杰', key: '杰' }]}>
+                  <Select className="max-w-[284px]" name="user" isRequired defaultSelectedKeys={["畅"]} label="请选择用户" items={[{ label: '畅', key: '畅' }, { label: '杰', key: '杰' }]}>
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                   </Select>
                 </ModalBody>
