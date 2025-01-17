@@ -11,7 +11,16 @@ import { Pagination } from "@nextui-org/pagination";
 
 export default function IndexPage() {
   // 消费品类选项
-  const categories = [{ label: '衣服', key: '衣服' }, { label: '化妆品', key: '化妆品' }, { label: '电子产品', key: '电子产品' }, { label: '家居用品', key: '家居用品' }, { label: '其他', key: '其他' }];
+  const categories = [
+    { label: '饮食', key: '饮食' },
+    { label: '衣服', key: '衣服' },
+    { label: '化妆品', key: '化妆品' },
+    { label: '电子产品', key: '电子产品' },
+    { label: '家庭用品', key: '家庭用品' },
+    { label: '交通', key: '交通' },
+    { label: '娱乐', key: '娱乐' },
+    { label: '其他', key: '其他' }
+  ];
   // 支付方式选项
   const paymentMethods = [{ label: '花呗', key: '花呗' }, { label: '白条', key: '白条' }, { label: '浦发信用卡', key: '浦发信用卡' }, { label: '其他', key: '其他' }];
   // 状态管理
@@ -158,7 +167,7 @@ export default function IndexPage() {
       key: 'jie',
       users: '杰  ',
       totalExpenses: Math.round(totalJie * 100) / 100,
-      remainingAmount: Math.round((1500 - totalJie) * 100) / 100
+      remainingAmount: Math.round((1000 - totalJie) * 100) / 100
     };
     categories.forEach(e => {
       summaryDataChangBodyCategory[e.key] = getTotalByCategory(changExpenses, e.key)
