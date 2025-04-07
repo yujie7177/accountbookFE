@@ -66,7 +66,7 @@ export default function IndexPage() {
   const fetchChangExpenses = async () => {
     try {
       const response = await fetch(
-        `https://account-book.post.jieyuu.us.kg/api/expenses/chang`
+        `https://account-book.yujieyujiedayujie.workers.dev/api/expenses/chang`
       );
       const data = await response.json();
       setChangExpenses(data);
@@ -78,7 +78,7 @@ export default function IndexPage() {
   const fetchJieExpenses = async () => {
     try {
       const response = await fetch(
-        `https://account-book.post.jieyuu.us.kg/api/expenses/jie`
+        `https://account-book.yujieyujiedayujie.workers.dev/api/expenses/jie`
       );
       const data = await response.json();
       setJieExpenses(data);
@@ -101,7 +101,7 @@ export default function IndexPage() {
         alert('请输入有效的金额');
         return;
       }
-      const response = await fetch(`https://account-book.post.jieyuu.us.kg/api/expenses`, {
+      const response = await fetch(`https://account-book.yujieyujiedayujie.workers.dev/api/expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
